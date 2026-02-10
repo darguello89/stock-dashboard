@@ -11,6 +11,7 @@ from app.services.data_provider import (
 )
 from app.services.advanced_indicators import combined_signal
 from app.services.news_generator import generate_news
+from app.services.session_analyzer import get_session_metrics
 
 app = FastAPI(title="Stock Dashboard API")
 
@@ -55,6 +56,41 @@ def health_check():
 def get_news():
     """Get dynamically generated market news"""
     return {"news": generate_news(count=8)}
+
+@app.get("/session")
+def get_session():
+    """Get current market session and execution checklist"""
+    # Get a stock for metrics calculation
+    snapshot, prices = get_cached_snapshot("AAPL")
+    current_price = snapshot.get("price", 100)
+    previous_close = snapshot.get("previous_close", 100)
+    
+    # Generate volumes
+    volumes = []
+    import random
+    for price in prices:
+        base_volume = 5000000
+        volume = base_volume * random.uniform(0.8, 1.5)
+        volumes.append(volume)
+    
+    # Get signal for VWAP and order flow
+    signal_analysis = combined_signal(prices, volumes, current_price)
+    components = signal_analysis.get("components", {})
+    vwap_price = components.get("vwap_price", current_price)
+    order_flow = components.get("order_flow", {})
+    order_flow_ratio = order_flow.get("ratio", 1.0)
+    
+    # Get session metrics
+    session_metrics = get_session_metrics(
+        prices,
+        volumes,
+        current_price,
+        previous_close,
+        vwap_price,
+        order_flow_ratio
+    )
+    
+    return session_metrics
 
 @app.get("/latest")
 def latest(symbol: str = "AAPL"):

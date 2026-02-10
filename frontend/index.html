@@ -443,6 +443,230 @@
             text-align: center;
             min-width: 60px;
         }
+
+        /* Execution Checklist Styles */
+        .session-section {
+            background: linear-gradient(135deg, var(--secondary-bg) 0%, var(--tertiary-bg) 100%);
+            padding: 3rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .session-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .session-badge {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            font-size: 1rem;
+            background-color: var(--accent-green);
+            color: var(--primary-bg);
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .session-badge.premarket {
+            background-color: #8b5cf6;
+        }
+
+        .session-badge.opening {
+            background-color: #3b82f6;
+        }
+
+        .session-badge.morning {
+            background-color: var(--accent-green);
+        }
+
+        .session-badge.lunch {
+            background-color: var(--accent-yellow);
+            color: var(--primary-bg);
+        }
+
+        .session-badge.afternoon {
+            background-color: #ec4899;
+        }
+
+        .session-badge.closing {
+            background-color: var(--accent-red);
+        }
+
+        .session-badge.market_closed {
+            background-color: var(--text-secondary);
+        }
+
+        .session-info {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .session-time {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .execution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .execution-card {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .execution-card:hover {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+        }
+
+        .execution-card.active {
+            border: 2px solid var(--accent-green);
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+
+        .execution-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent-green);
+        }
+
+        .execution-active .execution-title {
+            color: var(--accent-green);
+            font-size: 1.2rem;
+        }
+
+        .execution-strategy {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .execution-focus {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .execution-focus strong {
+            color: var(--text-primary);
+            display: block;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .focus-items {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .focus-items li {
+            padding: 0.3rem 0 0.3rem 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .focus-items li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent-green);
+            font-weight: 700;
+        }
+
+        .execution-metrics {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .metric-badge {
+            background-color: var(--tertiary-bg);
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.35rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .metric-badge strong {
+            color: var(--text-primary);
+        }
+
+        .session-alerts {
+            background-color: var(--primary-bg);
+            border-left: 4px solid var(--accent-yellow);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .alert-item {
+            margin-bottom: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 0.35rem;
+            background-color: var(--secondary-bg);
+            border-left: 3px solid var(--accent-yellow);
+        }
+
+        .alert-item.info {
+            border-left-color: #3b82f6;
+        }
+
+        .alert-item.trade {
+            border-left-color: var(--accent-green);
+        }
+
+        .alert-item.warning {
+            border-left-color: var(--accent-red);
+        }
+
+        .alert-type {
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+
+        .alert-type.info {
+            color: #3b82f6;
+        }
+
+        .alert-type.trade {
+            color: var(--accent-green);
+        }
+
+        .alert-type.warning {
+            color: var(--accent-red);
+        }
+
+        .alert-message {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-action {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
         
         /* Responsive */
         @media (max-width: 768px) {
@@ -515,6 +739,44 @@
                     <span class="sentiment-badge sentiment-bearish">
                         <i class="bi bi-arrow-down"></i> Bearish (20%)
                     </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Execution Checklist Section -->
+    <section class="session-section">
+        <div class="container-fluid">
+            <div class="session-header">
+                <span class="session-badge" id="sessionBadge">Loading...</span>
+                <div class="session-info">
+                    <h3 id="sessionName" style="margin: 0; color: var(--text-primary); font-weight: 700;">Market Session</h3>
+                    <div class="session-time" id="sessionTime">Current market hours</div>
+                    <p id="sessionStrategy" style="margin: 0.5rem 0 0 0; color: var(--text-primary); font-weight: 600;"></p>
+                </div>
+            </div>
+
+            <!-- Execution Cards Grid -->
+            <div class="execution-grid" id="executionGrid">
+                <!-- Cards will be populated dynamically -->
+            </div>
+
+            <!-- Session Alerts and Guidance -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <div class="session-alerts" id="sessionAlerts">
+                    <h4 style="margin: 0 0 1rem 0; color: var(--accent-green);">
+                        <i class="bi bi-lightning-charge"></i> Real-Time Alerts
+                    </h4>
+                    <div id="alertsContainer">
+                        <!-- Alerts will be populated here -->
+                    </div>
+                </div>
+
+                <div class="session-alerts" style="border-left-color: #3b82f6;">
+                    <h4 style="margin: 0 0 1rem 0; color: #3b82f6;">
+                        <i class="bi bi-book"></i> Session Guidance
+                    </h4>
+                    <p id="sessionGuidance" style="margin: 0; color: var(--text-secondary); line-height: 1.6;"></p>
                 </div>
             </div>
         </div>
@@ -785,6 +1047,105 @@
             });
         }
 
+        // Fetch session and execution checklist
+        async function fetchSession() {
+            try {
+                const response = await fetch(`${API_BASE}session`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching session:', error);
+                return null;
+            }
+        }
+
+        // Update execution checklist section
+        async function updateExecutionChecklist() {
+            const data = await fetchSession();
+            if (!data || !data.session) return;
+
+            const session = data.session;
+            const sessionName = session.session || 'unknown';
+            
+            // Update session badge and info
+            const badge = document.getElementById('sessionBadge');
+            badge.textContent = sessionName.replace(/_/g, ' ').toUpperCase();
+            badge.className = `session-badge ${sessionName}`;
+            
+            const sessionNameEl = document.getElementById('sessionName');
+            sessionNameEl.textContent = session.strategy || 'Market Session';
+            
+            const sessionTime = document.getElementById('sessionTime');
+            if (session.start_time && session.end_time) {
+                sessionTime.textContent = `${session.start_time} - ${session.end_time} ET`;
+            }
+            
+            const sessionStrategy = document.getElementById('sessionStrategy');
+            sessionStrategy.textContent = session.strategy || '';
+            
+            // Build execution cards
+            const SESSIONS_ORDER = ['premarket', 'opening', 'morning', 'lunch', 'afternoon', 'closing'];
+            const cardHTML = SESSIONS_ORDER.map(s => {
+                const isActive = sessionName === s;
+                const sessionData = data.components?.market_open_setup || {};
+                
+                return `
+                    <div class="execution-card ${isActive ? 'active' : ''}">
+                        <div class="execution-title">
+                            ${isActive ? '▶ ' : ''}${s.toUpperCase()}
+                        </div>
+                        <div class="execution-strategy">
+                            ${data.session && sessionName === s ? session.strategy : 'View session details'}
+                        </div>
+                        <div class="execution-focus">
+                            <strong>Focus Areas:</strong>
+                            <ul class="focus-items">
+                                ${data.session && sessionName === s ? 
+                                    (session.focus || []).map(f => `<li>${f}</li>`).join('') :
+                                    '<li>Awaiting session</li>'
+                                }
+                            </ul>
+                        </div>
+                        <div class="execution-metrics">
+                            ${data.session && sessionName === s ? `
+                                <div class="metric-badge">
+                                    <strong>Size:</strong> ${(session.max_position_size * 100).toFixed(0)}%
+                                </div>
+                                <div class="metric-badge">
+                                    <strong>Risk:</strong> ${(session.risk_per_trade * 100).toFixed(1)}%
+                                </div>
+                                <div class="metric-badge">
+                                    <strong>Levels:</strong> ${session.key_levels}
+                                </div>
+                            ` : ''
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('executionGrid').innerHTML = cardHTML;
+            
+            // Update alerts
+            const alertsContainer = document.getElementById('alertsContainer');
+            if (data.alerts && data.alerts.length > 0) {
+                alertsContainer.innerHTML = data.alerts.map(alert => `
+                    <div class="alert-item ${alert.type}">
+                        <div class="alert-type">${alert.type}</div>
+                        <div class="alert-message">${alert.message}</div>
+                        <div class="alert-action">→ ${alert.action}</div>
+                    </div>
+                `).join('');
+            } else {
+                alertsContainer.innerHTML = '<p style="color: var(--text-secondary);">No active alerts</p>';
+            }
+            
+            // Update guidance
+            document.getElementById('sessionGuidance').textContent = data.guidance || '';
+        }
+
         // Generate a signal rating from advanced algorithms
         function generateRating(signalAnalysis) {
             if (!signalAnalysis) return 'HOLD';
@@ -1035,11 +1396,15 @@
         window.addEventListener('DOMContentLoaded', function() {
             updateGreeting();
             updateMarketSentiment();
+            updateExecutionChecklist();
             updateNews();
             updateStocksTable();
             
             // Update time every second
             setInterval(updateGreeting, 1000);
+            
+            // Update execution checklist every 5 seconds
+            setInterval(updateExecutionChecklist, 5000);
             
             // Update news every 5 seconds (same as stocks)
             setInterval(updateNews, 5000);
