@@ -462,78 +462,7 @@
             </h2>
             
             <div class="row g-3" id="newsCarousel">
-                <!-- News cards will be populated here -->
-                <div class="col-md-6 col-lg-4 col-xl-3">
-                    <div class="news-card">
-                        <div class="news-source">
-                            <i class="bi bi-twitter"></i> X / Reuters
-                        </div>
-                        <h6 class="news-headline">Fed Signals Possible Rate Hold Through Year-End</h6>
-                        <p class="news-excerpt">
-                            Federal Reserve official indicates steady monetary policy ahead, supporting technology stocks and reducing borrowing costs for companies.
-                        </p>
-                        <div class="affected-stocks">
-                            <span class="stock-tag positive">AAPL <i class="bi bi-arrow-up-short"></i></span>
-                            <span class="stock-tag positive">MSFT <i class="bi bi-arrow-up-short"></i></span>
-                            <span class="stock-tag positive">TSLA <i class="bi bi-arrow-up-short"></i></span>
-                        </div>
-                        <div class="news-timestamp">2 hours ago</div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6 col-lg-4 col-xl-3">
-                    <div class="news-card">
-                        <div class="news-source">
-                            <i class="bi bi-twitter"></i> Elon Musk (@elonmusk)
-                        </div>
-                        <h6 class="news-headline">Tesla Announces New Gigafactory Expansion Plans</h6>
-                        <p class="news-excerpt">
-                            Tesla to invest $500M in new manufacturing facility, boosting production capacity and signaling strong growth confidence for EV market.
-                        </p>
-                        <div class="affected-stocks">
-                            <span class="stock-tag positive">TSLA <i class="bi bi-arrow-up-short"></i></span>
-                            <span class="stock-tag neutral">GM <i class="bi bi-dash"></i></span>
-                            <span class="stock-tag negative">F <i class="bi bi-arrow-down-short"></i></span>
-                        </div>
-                        <div class="news-timestamp">4 hours ago</div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6 col-lg-4 col-xl-3">
-                    <div class="news-card">
-                        <div class="news-source">
-                            <i class="bi bi-twitter"></i> Bloomberg
-                        </div>
-                        <h6 class="news-headline">Oil Prices Surge Amid Middle East Tensions</h6>
-                        <p class="news-excerpt">
-                            Crude oil reaches 6-month high following geopolitical developments, affecting energy and transportation stocks negatively.
-                        </p>
-                        <div class="affected-stocks">
-                            <span class="stock-tag negative">XOM <i class="bi bi-arrow-down-short"></i></span>
-                            <span class="stock-tag positive">CVX <i class="bi bi-arrow-up-short"></i></span>
-                            <span class="stock-tag negative">UAL <i class="bi bi-arrow-down-short"></i></span>
-                        </div>
-                        <div class="news-timestamp">6 hours ago</div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6 col-lg-4 col-xl-3">
-                    <div class="news-card">
-                        <div class="news-source">
-                            <i class="bi bi-twitter"></i> JPMorgan Chase
-                        </div>
-                        <h6 class="news-headline">Q4 Earnings Beat Expectations, Stock Surges</h6>
-                        <p class="news-excerpt">
-                            JPMorgan reports record quarterly earnings with strong investment banking revenue, lifting financial sector sentiment across market.
-                        </p>
-                        <div class="affected-stocks">
-                            <span class="stock-tag positive">JPM <i class="bi bi-arrow-up-short"></i></span>
-                            <span class="stock-tag positive">BAC <i class="bi bi-arrow-up-short"></i></span>
-                            <span class="stock-tag positive">GS <i class="bi bi-arrow-up-short"></i></span>
-                        </div>
-                        <div class="news-timestamp">8 hours ago</div>
-                    </div>
-                </div>
+                <!-- News cards will be populated here dynamically -->
             </div>
         </div>
     </section>
@@ -731,6 +660,65 @@
             }
         }
 
+        // Fetch news from backend API
+        async function fetchNews() {
+            try {
+                const response = await fetch(`${API_BASE}news`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching news:', error);
+                return null;
+            }
+        }
+
+        // Get sentiment icon
+        function getSentimentIcon(sentiment) {
+            switch(sentiment) {
+                case 'positive': return '<i class="bi bi-arrow-up-short"></i>';
+                case 'negative': return '<i class="bi bi-arrow-down-short"></i>';
+                case 'neutral': return '<i class="bi bi-dash"></i>';
+                default: return '';
+            }
+        }
+
+        // Update news section
+        async function updateNews() {
+            const data = await fetchNews();
+            if (!data || !data.news) return;
+
+            const newsContainer = document.getElementById('newsCarousel');
+            newsContainer.innerHTML = '';
+
+            data.news.forEach(item => {
+                const stockTags = item.affected_stocks.map(stock => 
+                    `<span class="stock-tag ${stock.sentiment}">${stock.symbol} ${getSentimentIcon(stock.sentiment)}</span>`
+                ).join('');
+
+                const newsCard = document.createElement('div');
+                newsCard.className = 'col-md-6 col-lg-4 col-xl-3';
+                newsCard.innerHTML = `
+                    <div class="news-card">
+                        <div class="news-source">
+                            <i class="bi bi-newspaper"></i> ${item.source}
+                        </div>
+                        <h6 class="news-headline">${item.headline}</h6>
+                        <p class="news-excerpt">
+                            ${item.excerpt}
+                        </p>
+                        <div class="affected-stocks">
+                            ${stockTags}
+                        </div>
+                        <div class="news-timestamp">${item.timestamp}</div>
+                    </div>
+                `;
+                
+                newsContainer.appendChild(newsCard);
+            });
+        }
+
         // Generate a signal rating based on RSI value
         function generateRating(rsi, ema20, price) {
             if (rsi < 30) {
@@ -904,10 +892,14 @@
         window.addEventListener('DOMContentLoaded', function() {
             updateGreeting();
             updateMarketSentiment();
+            updateNews();
             updateStocksTable();
             
             // Update time every second
             setInterval(updateGreeting, 1000);
+            
+            // Update news every 30 seconds
+            setInterval(updateNews, 30000);
             
             // Update stocks data every 5 seconds
             setInterval(updateStocksTable, 5000);

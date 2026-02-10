@@ -11,6 +11,7 @@ from app.services.data_provider import (
 )
 from app.services.indicators import rsi, ema
 from app.services.signals import generate_signal
+from app.services.news_generator import generate_news
 
 app = FastAPI(title="Stock Dashboard API")
 
@@ -50,6 +51,11 @@ async def start_background_tasks():
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+@app.get("/news")
+def get_news():
+    """Get dynamically generated market news"""
+    return {"news": generate_news(count=8)}
 
 @app.get("/latest")
 def latest(symbol: str = "AAPL"):
