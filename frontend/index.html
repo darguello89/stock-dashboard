@@ -759,11 +759,13 @@
             }
         }
 
+        // Keep track of current stocks and rows for efficient updates
+        let stockDataCache = new Map();
+        let stockRowMap = new Map();
+
         // Update stocks table with real data
         async function updateStocksTable() {
             const tableBody = document.getElementById('stocksTableBody');
-            tableBody.innerHTML = ''; // Clear existing rows
-
             const stocksData = [];
 
             for (const symbol of STOCK_SYMBOLS) {
@@ -809,21 +811,27 @@
                 if (categoryDiff !== 0) return categoryDiff;
                 
                 // Within same category, sort by recommendation confidence (RSI extremeness)
-                // For BUY signals (STRONG BUY, BUY): lower RSI = stronger signal (more oversold)
-                // For SELL signals (STRONG SELL, SELL): higher RSI = stronger signal (more overbought)
                 if (a.rating === 'STRONG BUY' || a.rating === 'BUY') {
-                    return a.rsi - b.rsi; // Lower RSI first (more oversold = stronger buy)
+                    return a.rsi - b.rsi;
                 } else if (a.rating === 'STRONG SELL' || a.rating === 'SELL') {
-                    return b.rsi - a.rsi; // Higher RSI first (more overbought = stronger sell)
+                    return b.rsi - a.rsi;
                 } else {
-                    // For HOLD, sort by RSI proximity to neutral (50)
                     return Math.abs(a.rsi - 50) - Math.abs(b.rsi - 50);
                 }
             });
 
-            // Render sorted stocks
-            stocksData.forEach(stock => {
-                const row = document.createElement('tr');
+            // Update or create rows for each stock
+            stocksData.forEach((stock, index) => {
+                let row = stockRowMap.get(stock.symbol);
+                
+                if (!row) {
+                    // Create new row if it doesn't exist
+                    row = document.createElement('tr');
+                    tableBody.appendChild(row);
+                    stockRowMap.set(stock.symbol, row);
+                }
+                
+                // Update row data only if values changed
                 row.innerHTML = `
                     <td><span class="stock-symbol">${stock.symbol}</span></td>
                     <td>${stock.company}</td>
@@ -843,9 +851,20 @@
                         </span>
                     </td>
                 `;
-                
-                tableBody.appendChild(row);
             });
+
+            // Clean up rows for stocks no longer in data
+            const currentSymbols = new Set(stocksData.map(s => s.symbol));
+            const toRemove = [];
+            
+            stockRowMap.forEach((row, symbol) => {
+                if (!currentSymbols.has(symbol)) {
+                    row.remove();
+                    toRemove.push(symbol);
+                }
+            });
+            
+            toRemove.forEach(symbol => stockRowMap.delete(symbol));
         }
 
         // Update greeting based on time of day
