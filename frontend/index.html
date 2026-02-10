@@ -764,6 +764,8 @@
             const tableBody = document.getElementById('stocksTableBody');
             tableBody.innerHTML = ''; // Clear existing rows
 
+            const stocksData = [];
+
             for (const symbol of STOCK_SYMBOLS) {
                 const data = await fetchStockData(symbol);
                 
@@ -784,29 +786,62 @@
                 const changePercent = ((Math.random() - 0.4) * 5).toFixed(2);
                 const isPositive = changePercent > 0;
                 
+                stocksData.push({
+                    symbol,
+                    company: stockCompanies[symbol] || symbol,
+                    price,
+                    changePercent: parseFloat(changePercent),
+                    isPositive,
+                    rating,
+                    priceRanges,
+                    peRatio: (Math.random() * 50 + 10).toFixed(1),
+                    marketCap: (Math.random() * 2 + 0.5).toFixed(1)
+                });
+            }
+
+            // Sort stocks: first by rating priority, then by absolute change percentage (biggest movers first)
+            const ratingOrder = {
+                'STRONG BUY': 1,
+                'BUY': 2,
+                'HOLD': 3,
+                'SELL': 4,
+                'STRONG SELL': 5
+            };
+
+            stocksData.sort((a, b) => {
+                // First sort by rating category
+                const ratingDiff = ratingOrder[a.rating] - ratingOrder[b.rating];
+                if (ratingDiff !== 0) return ratingDiff;
+                
+                // Within same rating, sort by absolute change percentage (biggest movers first)
+                return Math.abs(b.changePercent) - Math.abs(a.changePercent);
+            });
+
+            // Render sorted stocks
+            stocksData.forEach(stock => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><span class="stock-symbol">${symbol}</span></td>
-                    <td>${stockCompanies[symbol] || symbol}</td>
-                    <td><span class="stock-price">$${price.toFixed(2)}</span></td>
+                    <td><span class="stock-symbol">${stock.symbol}</span></td>
+                    <td>${stock.company}</td>
+                    <td><span class="stock-price">$${stock.price.toFixed(2)}</span></td>
                     <td>
-                        <span class="price-change ${isPositive ? 'positive' : 'negative'}">
-                            <i class="bi bi-arrow-${isPositive ? 'up' : 'down'}-short"></i> ${isPositive ? '+' : ''}${changePercent}%
+                        <span class="price-change ${stock.isPositive ? 'positive' : 'negative'}">
+                            <i class="bi bi-arrow-${stock.isPositive ? 'up' : 'down'}-short"></i> ${stock.isPositive ? '+' : ''}${stock.changePercent.toFixed(2)}%
                         </span>
                     </td>
-                    <td>${(Math.random() * 50 + 10).toFixed(1)}</td>
-                    <td>$${(Math.random() * 2 + 0.5).toFixed(1)}T</td>
-                    <td><span class="price-range price-range-buy">${priceRanges.buy}</span></td>
-                    <td><span class="price-range price-range-sell">${priceRanges.sell}</span></td>
+                    <td>${stock.peRatio}</td>
+                    <td>$${stock.marketCap}T</td>
+                    <td><span class="price-range price-range-buy">${stock.priceRanges.buy}</span></td>
+                    <td><span class="price-range price-range-sell">${stock.priceRanges.sell}</span></td>
                     <td>
-                        <span class="rating-badge ${getRatingClass(rating)}">
-                            ${rating}
+                        <span class="rating-badge ${getRatingClass(stock.rating)}">
+                            ${stock.rating}
                         </span>
                     </td>
                 `;
                 
                 tableBody.appendChild(row);
-            }
+            });
         }
 
         // Update greeting based on time of day
