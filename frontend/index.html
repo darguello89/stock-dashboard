@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market Dashboard - Trading Analyzer</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --primary-bg: #0f172a;
+            --secondary-bg: #1e293b;
+            --tertiary-bg: #334155;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border-color: #475569;
+        }
+        
+        * {
+            color-scheme: dark;
+        }
+        
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        /* Greeting Section */
+        .greeting-section {
+            background: linear-gradient(135deg, var(--secondary-bg) 0%, var(--tertiary-bg) 100%);
+            padding: 3rem 2rem;
+            border-bottom: 2px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .greeting-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent-green), #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .time-display {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .market-sentiment {
+            background-color: var(--secondary-bg);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border-left: 4px solid var(--accent-green);
+            margin-top: 1.5rem;
+        }
+        
+        .sentiment-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        .sentiment-bullish {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+        
+        .sentiment-bearish {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
+        
+        .sentiment-neutral {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--accent-yellow);
+            border: 1px solid var(--accent-yellow);
+        }
+        
+        /* News Carousel Section */
+        .news-section {
+            padding: 3rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-green), #3b82f6);
+        }
+        
+        .news-card {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            height: 100%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .news-card:hover {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .news-source {
+            display: inline-block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-green);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .news-headline {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+            color: var(--text-primary);
+        }
+        
+        .news-excerpt {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        
+        .affected-stocks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .stock-tag {
+            display: inline-block;
+            background-color: var(--tertiary-bg);
+            padding: 0.35rem 0.75rem;
+            border-radius: 0.35rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+        }
+        
+        .stock-tag.positive {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        
+        .stock-tag.negative {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+        
+        .stock-tag.neutral {
+            border-color: var(--text-secondary);
+            color: var(--text-secondary);
+        }
+        
+        .news-timestamp {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            font-style: italic;
+        }
+        
+        /* Stocks List Section */
+        .stocks-section {
+            padding: 3rem 2rem;
+        }
+        
+        .stocks-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .filter-btn:hover,
+        .filter-btn.active {
+            background-color: var(--accent-green);
+            border-color: var(--accent-green);
+            color: var(--primary-bg);
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .search-box input {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem;
+            width: 100%;
+        }
+        
+        .search-box input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+        }
+        
+        .stocks-table {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        
+        .stocks-table thead {
+            background-color: var(--tertiary-bg);
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .stocks-table th {
+            padding: 1.25rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        
+        .stocks-table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s ease;
+        }
+        
+        .stocks-table tbody tr:hover {
+            background-color: var(--tertiary-bg);
+        }
+        
+        .stocks-table tbody tr:last-child {
+            border-bottom: none;
+        }
+        
+        .stocks-table td {
+            padding: 1.25rem;
+            font-size: 0.95rem;
+        }
+        
+        .stock-symbol {
+            font-weight: 700;
+            color: var(--accent-green);
+            font-size: 1rem;
+        }
+        
+        .stock-price {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .price-change {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .price-change.positive {
+            color: var(--accent-green);
+        }
+        
+        .price-change.negative {
+            color: var(--accent-red);
+        }
+        
+        .rating-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .rating-strong-buy {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+        
+        .rating-buy {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+        }
+        
+        .rating-hold {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--accent-yellow);
+            border: 1px solid var(--accent-yellow);
+        }
+        
+        .rating-sell {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid #f87171;
+        }
+        
+        .rating-strong-sell {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
+        
+        .price-range {
+            font-weight: 600;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.35rem;
+            font-size: 0.9rem;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .price-range-buy {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+        
+        .price-range-sell {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .greeting-title {
+                font-size: 2rem;
+            }
+            
+            .stocks-table {
+                font-size: 0.85rem;
+            }
+            
+            .stocks-table th,
+            .stocks-table td {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .stocks-controls {
+                flex-direction: column;
+            }
+            
+            .filter-btn {
+                width: 100%;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .greeting-section,
+        .news-section,
+        .stocks-section {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Greeting Section -->
+    <section class="greeting-section">
+        <div class="container-fluid">
+            <div class="time-display" id="timeDisplay"></div>
+            <h1 class="greeting-title">
+                <span id="greeting"></span>, Diego 👋
+            </h1>
+            
+            <!-- Market Sentiment -->
+            <div class="market-sentiment">
+                <div style="margin-bottom: 1rem;">
+                    <h5 style="margin-bottom: 0.75rem; color: var(--text-primary);">📊 Market Sentiment</h5>
+                    <p style="margin: 0; color: var(--text-secondary); line-height: 1.6;">
+                        <span id="sentimentText">Loading market sentiment...</span>
+                    </p>
+                </div>
+                
+                <div style="margin-top: 1rem;">
+                    <span class="sentiment-badge sentiment-bullish">
+                        <i class="bi bi-arrow-up"></i> Bullish (45%)
+                    </span>
+                    <span class="sentiment-badge sentiment-neutral">
+                        <i class="bi bi-dash"></i> Neutral (35%)
+                    </span>
+                    <span class="sentiment-badge sentiment-bearish">
+                        <i class="bi bi-arrow-down"></i> Bearish (20%)
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- News Section with Carousel -->
+    <section class="news-section">
+        <div class="container-fluid">
+            <h2 class="section-title">
+                <i class="bi bi-newspaper"></i> Market News & Analysis
+            </h2>
+            
+            <div class="row g-3" id="newsCarousel">
+                <!-- News cards will be populated here -->
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="news-card">
+                        <div class="news-source">
+                            <i class="bi bi-twitter"></i> X / Reuters
+                        </div>
+                        <h6 class="news-headline">Fed Signals Possible Rate Hold Through Year-End</h6>
+                        <p class="news-excerpt">
+                            Federal Reserve official indicates steady monetary policy ahead, supporting technology stocks and reducing borrowing costs for companies.
+                        </p>
+                        <div class="affected-stocks">
+                            <span class="stock-tag positive">AAPL <i class="bi bi-arrow-up-short"></i></span>
+                            <span class="stock-tag positive">MSFT <i class="bi bi-arrow-up-short"></i></span>
+                            <span class="stock-tag positive">TSLA <i class="bi bi-arrow-up-short"></i></span>
+                        </div>
+                        <div class="news-timestamp">2 hours ago</div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="news-card">
+                        <div class="news-source">
+                            <i class="bi bi-twitter"></i> Elon Musk (@elonmusk)
+                        </div>
+                        <h6 class="news-headline">Tesla Announces New Gigafactory Expansion Plans</h6>
+                        <p class="news-excerpt">
+                            Tesla to invest $500M in new manufacturing facility, boosting production capacity and signaling strong growth confidence for EV market.
+                        </p>
+                        <div class="affected-stocks">
+                            <span class="stock-tag positive">TSLA <i class="bi bi-arrow-up-short"></i></span>
+                            <span class="stock-tag neutral">GM <i class="bi bi-dash"></i></span>
+                            <span class="stock-tag negative">F <i class="bi bi-arrow-down-short"></i></span>
+                        </div>
+                        <div class="news-timestamp">4 hours ago</div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="news-card">
+                        <div class="news-source">
+                            <i class="bi bi-twitter"></i> Bloomberg
+                        </div>
+                        <h6 class="news-headline">Oil Prices Surge Amid Middle East Tensions</h6>
+                        <p class="news-excerpt">
+                            Crude oil reaches 6-month high following geopolitical developments, affecting energy and transportation stocks negatively.
+                        </p>
+                        <div class="affected-stocks">
+                            <span class="stock-tag negative">XOM <i class="bi bi-arrow-down-short"></i></span>
+                            <span class="stock-tag positive">CVX <i class="bi bi-arrow-up-short"></i></span>
+                            <span class="stock-tag negative">UAL <i class="bi bi-arrow-down-short"></i></span>
+                        </div>
+                        <div class="news-timestamp">6 hours ago</div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="news-card">
+                        <div class="news-source">
+                            <i class="bi bi-twitter"></i> JPMorgan Chase
+                        </div>
+                        <h6 class="news-headline">Q4 Earnings Beat Expectations, Stock Surges</h6>
+                        <p class="news-excerpt">
+                            JPMorgan reports record quarterly earnings with strong investment banking revenue, lifting financial sector sentiment across market.
+                        </p>
+                        <div class="affected-stocks">
+                            <span class="stock-tag positive">JPM <i class="bi bi-arrow-up-short"></i></span>
+                            <span class="stock-tag positive">BAC <i class="bi bi-arrow-up-short"></i></span>
+                            <span class="stock-tag positive">GS <i class="bi bi-arrow-up-short"></i></span>
+                        </div>
+                        <div class="news-timestamp">8 hours ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stocks List Section -->
+    <section class="stocks-section">
+        <div class="container-fluid">
+            <h2 class="section-title">
+                <i class="bi bi-graph-up"></i> Top 100 US Stocks Analysis
+            </h2>
+            
+            <!-- Controls -->
+            <div class="stocks-controls">
+                <button class="filter-btn active" onclick="filterStocks('all')">
+                    <i class="bi bi-list"></i> All
+                </button>
+                <button class="filter-btn" onclick="filterStocks('strong-buy')">
+                    <i class="bi bi-check-circle"></i> Strong Buy
+                </button>
+                <button class="filter-btn" onclick="filterStocks('buy')">
+                    <i class="bi bi-arrow-up-circle"></i> Buy
+                </button>
+                <button class="filter-btn" onclick="filterStocks('hold')">
+                    <i class="bi bi-dash-circle"></i> Hold
+                </button>
+                <button class="filter-btn" onclick="filterStocks('sell')">
+                    <i class="bi bi-arrow-down-circle"></i> Sell
+                </button>
+                <button class="filter-btn" onclick="filterStocks('strong-sell')">
+                    <i class="bi bi-x-circle"></i> Strong Sell
+                </button>
+                
+                <div class="search-box ms-auto">
+                    <input type="text" id="stockSearch" placeholder="Search by symbol or company name..." onkeyup="searchStocks()">
+                </div>
+            </div>
+            
+            <!-- Stocks Table -->
+            <div class="stocks-table">
+                <table class="table table-hover mb-0" style="color: inherit;">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%;">Symbol</th>
+                            <th style="width: 18%;">Company Name</th>
+                            <th style="width: 10%;">Price</th>
+                            <th style="width: 10%;">Change (24h)</th>
+                            <th style="width: 10%;">P/E Ratio</th>
+                            <th style="width: 12%;">Market Cap</th>
+                            <th style="width: 13%;">Buy Range</th>
+                            <th style="width: 13%;">Sell Range</th>
+                            <th style="width: 16%;">Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stocksTableBody">
+                        <!-- Stock rows will be populated here -->
+                        <tr>
+                            <td><span class="stock-symbol">AAPL</span></td>
+                            <td>Apple Inc.</td>
+                            <td><span class="stock-price">$195.42</span></td>
+                            <td>
+                                <span class="price-change positive">
+                                    <i class="bi bi-arrow-up-short"></i> +2.45%
+                                </span>
+                            </td>
+                            <td>28.5</td>
+                            <td>$3.2T</td>
+                            <td><span class="price-range price-range-buy">$185 - $192</span></td>
+                            <td><span class="price-range price-range-sell">$210 - $225</span></td>
+                            <td>
+                                <span class="rating-badge rating-strong-buy">
+                                    STRONG BUY
+                                </span>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="stock-symbol">MSFT</span></td>
+                            <td>Microsoft Corporation</td>
+                            <td><span class="stock-price">$378.91</span></td>
+                            <td>
+                                <span class="price-change positive">
+                                    <i class="bi bi-arrow-up-short"></i> +1.89%
+                                </span>
+                            </td>
+                            <td>35.2</td>
+                            <td>$2.8T</td>
+                            <td><span class="price-range price-range-buy">$360 - $375</span></td>
+                            <td><span class="price-range price-range-sell">$400 - $420</span></td>
+                            <td>
+                                <span class="rating-badge rating-strong-buy">
+                                    STRONG BUY
+                                </span>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="stock-symbol">GOOGL</span></td>
+                            <td>Alphabet Inc.</td>
+                            <td><span class="stock-price">$140.23</span></td>
+                            <td>
+                                <span class="price-change positive">
+                                    <i class="bi bi-arrow-up-short"></i> +0.95%
+                                </span>
+                            </td>
+                            <td>22.1</td>
+                            <td>$1.8T</td>
+                            <td><span class="price-range price-range-buy">$135 - $140</span></td>
+                            <td><span class="price-range price-range-sell">$155 - $165</span></td>
+                            <td>
+                                <span class="rating-badge rating-buy">
+                                    BUY
+                                </span>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="stock-symbol">AMZN</span></td>
+                            <td>Amazon.com Inc.</td>
+                            <td><span class="stock-price">$189.45</span></td>
+                            <td>
+                                <span class="price-change positive">
+                                    <i class="bi bi-arrow-up-short"></i> +3.12%
+                                </span>
+                            </td>
+                            <td>39.8</td>
+                            <td>$1.9T</td>
+                            <td><span class="price-range price-range-buy">$175 - $185</span></td>
+                            <td><span class="price-range price-range-sell">$210 - $230</span></td>
+                            <td>
+                                <span class="rating-badge rating-strong-buy">
+                                    STRONG BUY
+                                </span>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="stock-symbol">NVDA</span></td>
+                            <td>NVIDIA Corporation</td>
+                            <td><span class="stock-price">$875.32</span></td>
+                            <td>
+                                <span class="price-change positive">
+                                    <i class="bi bi-arrow-up-short"></i> +5.67%
+                                </span>
+                            </td>
+                            <td>65.3</td>
+                            <td>$2.1T</td>
+                            <td><span class="price-range price-range-buy">$840 - $870</span></td>
+                            <td><span class="price-range price-range-sell">$920 - $980</span></td>
+                            <td>
+                                <span class="rating-badge rating-strong-buy">
+                                    STRONG BUY
+                                </span>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="stock-symbol">TSLA</span></td>
+                            <td>Tesla Inc.</td>
+                            <td><span class="stock-price">$251.08</span></td>
+                            <td>
+                                <span class="price-change positive">
+                                    <i class="bi bi-arrow-up-short"></i> +2.34%
+                                </span>
+                            </td>
+                            <td>81.2</td>
+                            <td>$795B</td>
+                            <td><span class="price-range price-range-buy">$240 - $250</span></td>
+                            <td><span class="price-range price-range-sell">$280 - $310</span></td>
+                            <td>
+                                <span class="rating-badge rating-buy">
+                                    BUY
+                                </span>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="stock-symbol">META</span></td>
+                            <td>Meta Platforms Inc.</td>
+                            <td><span class="stock-price">$485.61</span></td>
+                            <td>
+                                <span class="price-change negative">
+                                    <i class="bi bi-arrow-down-short"></i> -1.23%
+                                </span>
+                            </td>
+                            <td>28.9</td>
+                            <td>$1.2T</td>
+                            <td><span class="price-range price-range-buy">$460 - $480</span></td>
+                            <td><span class="price-range price-range-sell">$520 - $560</span></td>
+                            <td>
+                                <span class="rating-badge rating-hold">
+                                    HOLD
+                                </span>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="stock-symbol">XOM</span></td>
+                            <td>Exxon Mobil Corporation</td>
+                            <td><span class="stock-price">$108.45</span></td>
+                            <td>
+                                <span class="price-change negative">
+                                    <i class="bi bi-arrow-down-short"></i> -2.15%
+                                </span>
+                            </td>
+                            <td>15.3</td>
+                            <td>$450B</td>
+                            <td><span class="price-range price-range-buy">$100 - $105</span></td>
+                            <td><span class="price-range price-range-sell">$120 - $135</span></td>
+                            <td>
+                                <span class="rating-badge rating-sell">
+                                    SELL
+                                </span>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="stock-symbol">JPM</span></td>
+                            <td>JPMorgan Chase & Co.</td>
+                            <td><span class="stock-price">$192.87</span></td>
+                            <td>
+                                <span class="price-change positive">
+                                    <i class="bi bi-arrow-up-short"></i> +4.56%
+                                </span>
+                            </td>
+                            <td>12.1</td>
+                            <td>$550B</td>
+                            <td><span class="price-range price-range-buy">$180 - $190</span></td>
+                            <td><span class="price-range price-range-sell">$215 - $235</span></td>
+                            <td>
+                                <span class="rating-badge rating-strong-buy">
+                                    STRONG BUY
+                                </span>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="stock-symbol">BAC</span></td>
+                            <td>Bank of America Corp.</td>
+                            <td><span class="stock-price">$35.62</span></td>
+                            <td>
+                                <span class="price-change positive">
+                                    <i class="bi bi-arrow-up-short"></i> +3.78%
+                                </span>
+                            </td>
+                            <td>10.5</td>
+                            <td>$320B</td>
+                            <td><span class="price-range price-range-buy">$32 - $35</span></td>
+                            <td><span class="price-range price-range-sell">$40 - $45</span></td>
+                            <td>
+                                <span class="rating-badge rating-strong-buy">
+                                    STRONG BUY
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Update greeting based on time of day
+        function updateGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = '';
+            
+            if (hour < 12) {
+                greeting = 'Good Morning';
+            } else if (hour < 18) {
+                greeting = 'Good Afternoon';
+            } else {
+                greeting = 'Good Evening';
+            }
+            
+            document.getElementById('greeting').textContent = greeting;
+            
+            // Update time display
+            const timeString = now.toLocaleString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('timeDisplay').textContent = '📅 ' + timeString;
+        }
+        
+        // Update market sentiment (placeholder)
+        function updateMarketSentiment() {
+            const sentiments = [
+                'Markets are showing strong bullish momentum with major indices climbing on Fed policy expectations and strong corporate earnings.',
+                'Today\'s market activity reflects investor confidence in technology stocks and financial sector strength.',
+                'Mixed sentiment dominates today\'s trading as investors balance growth concerns with inflation data.'
+            ];
+            
+            const randomIndex = Math.floor(Math.random() * sentiments.length);
+            document.getElementById('sentimentText').textContent = sentiments[randomIndex];
+        }
+        
+        // Filter stocks by rating
+        function filterStocks(rating) {
+            // Update button active state
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // In a real app, this would filter the table
+            console.log('Filtering by rating:', rating);
+        }
+        
+        // Search stocks
+        function searchStocks() {
+            const searchTerm = document.getElementById('stockSearch').value.toLowerCase();
+            const tableRows = document.querySelectorAll('#stocksTableBody tr');
+            
+            tableRows.forEach(row => {
+                const symbol = row.querySelector('.stock-symbol').textContent.toLowerCase();
+                const company = row.cells[1].textContent.toLowerCase();
+                
+                if (symbol.includes(searchTerm) || company.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            updateGreeting();
+            updateMarketSentiment();
+            
+            // Update time every second
+            setInterval(updateGreeting, 1000);
+        });
+    </script>
+</body>
+</html>
