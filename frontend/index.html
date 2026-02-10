@@ -764,6 +764,8 @@
             const tableBody = document.getElementById('stocksTableBody');
             tableBody.innerHTML = ''; // Clear existing rows
 
+            const stocksData = [];
+
             for (const symbol of STOCK_SYMBOLS) {
                 const data = await fetchStockData(symbol);
                 
@@ -784,29 +786,66 @@
                 const changePercent = ((Math.random() - 0.4) * 5).toFixed(2);
                 const isPositive = changePercent > 0;
                 
+                stocksData.push({
+                    symbol,
+                    company: stockCompanies[symbol] || symbol,
+                    price,
+                    changePercent: parseFloat(changePercent),
+                    isPositive,
+                    rating,
+                    rsi,
+                    priceRanges,
+                    peRatio: (Math.random() * 50 + 10).toFixed(1),
+                    marketCap: (Math.random() * 2 + 0.5).toFixed(1)
+                });
+            }
+
+            // Sort by category order, then by recommendation strength within each category
+            const categoryOrder = ['STRONG BUY', 'BUY', 'HOLD', 'SELL', 'STRONG SELL'];
+            
+            stocksData.sort((a, b) => {
+                // First sort by category
+                const categoryDiff = categoryOrder.indexOf(a.rating) - categoryOrder.indexOf(b.rating);
+                if (categoryDiff !== 0) return categoryDiff;
+                
+                // Within same category, sort by recommendation confidence (RSI extremeness)
+                // For BUY signals (STRONG BUY, BUY): lower RSI = stronger signal (more oversold)
+                // For SELL signals (STRONG SELL, SELL): higher RSI = stronger signal (more overbought)
+                if (a.rating === 'STRONG BUY' || a.rating === 'BUY') {
+                    return a.rsi - b.rsi; // Lower RSI first (more oversold = stronger buy)
+                } else if (a.rating === 'STRONG SELL' || a.rating === 'SELL') {
+                    return b.rsi - a.rsi; // Higher RSI first (more overbought = stronger sell)
+                } else {
+                    // For HOLD, sort by RSI proximity to neutral (50)
+                    return Math.abs(a.rsi - 50) - Math.abs(b.rsi - 50);
+                }
+            });
+
+            // Render sorted stocks
+            stocksData.forEach(stock => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><span class="stock-symbol">${symbol}</span></td>
-                    <td>${stockCompanies[symbol] || symbol}</td>
-                    <td><span class="stock-price">$${price.toFixed(2)}</span></td>
+                    <td><span class="stock-symbol">${stock.symbol}</span></td>
+                    <td>${stock.company}</td>
+                    <td><span class="stock-price">$${stock.price.toFixed(2)}</span></td>
                     <td>
-                        <span class="price-change ${isPositive ? 'positive' : 'negative'}">
-                            <i class="bi bi-arrow-${isPositive ? 'up' : 'down'}-short"></i> ${isPositive ? '+' : ''}${changePercent}%
+                        <span class="price-change ${stock.isPositive ? 'positive' : 'negative'}">
+                            <i class="bi bi-arrow-${stock.isPositive ? 'up' : 'down'}-short"></i> ${stock.isPositive ? '+' : ''}${stock.changePercent.toFixed(2)}%
                         </span>
                     </td>
-                    <td>${(Math.random() * 50 + 10).toFixed(1)}</td>
-                    <td>$${(Math.random() * 2 + 0.5).toFixed(1)}T</td>
-                    <td><span class="price-range price-range-buy">${priceRanges.buy}</span></td>
-                    <td><span class="price-range price-range-sell">${priceRanges.sell}</span></td>
+                    <td>${stock.peRatio}</td>
+                    <td>$${stock.marketCap}T</td>
+                    <td><span class="price-range price-range-buy">${stock.priceRanges.buy}</span></td>
+                    <td><span class="price-range price-range-sell">${stock.priceRanges.sell}</span></td>
                     <td>
-                        <span class="rating-badge ${getRatingClass(rating)}">
-                            ${rating}
+                        <span class="rating-badge ${getRatingClass(stock.rating)}">
+                            ${stock.rating}
                         </span>
                     </td>
                 `;
                 
                 tableBody.appendChild(row);
-            }
+            });
         }
 
         // Update greeting based on time of day
