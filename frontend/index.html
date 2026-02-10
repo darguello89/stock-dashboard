@@ -382,6 +382,67 @@
             color: var(--accent-red);
             border: 1px solid rgba(239, 68, 68, 0.4);
         }
+
+        /* Advanced Indicator Badges */
+        .algorithm-badge {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .algorithm-badge small {
+            background-color: var(--secondary-bg);
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            border-left: 2px solid #3b82f6;
+            color: var(--text-secondary);
+        }
+
+        .vwap-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.35rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            background-color: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .vwap-badge.above {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .vwap-badge.below {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .poc-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.35rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            background-color: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.4);
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 0.35rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: white;
+            text-align: center;
+            min-width: 60px;
+        }
         
         /* Responsive */
         @media (max-width: 768px) {
@@ -511,14 +572,14 @@
                     <thead>
                         <tr>
                             <th style="width: 8%;">Symbol</th>
-                            <th style="width: 18%;">Company Name</th>
+                            <th style="width: 15%;">Company Name</th>
                             <th style="width: 10%;">Price</th>
                             <th style="width: 10%;">Change (24h)</th>
-                            <th style="width: 10%;">P/E Ratio</th>
-                            <th style="width: 12%;">Market Cap</th>
-                            <th style="width: 13%;">Buy Range</th>
-                            <th style="width: 13%;">Sell Range</th>
-                            <th style="width: 16%;">Rating</th>
+                            <th style="width: 13%;">Order Flow & Vol</th>
+                            <th style="width: 12%;">VWAP Pos.</th>
+                            <th style="width: 10%;">POC Price</th>
+                            <th style="width: 11%;">Confidence</th>
+                            <th style="width: 11%;">Signal</th>
                         </tr>
                     </thead>
                     <tbody id="stocksTableBody">
@@ -724,19 +785,10 @@
             });
         }
 
-        // Generate a signal rating based on RSI value
-        function generateRating(rsi, ema20, price) {
-            if (rsi < 30) {
-                return 'STRONG BUY';
-            } else if (rsi < 40) {
-                return 'BUY';
-            } else if (rsi > 70) {
-                return 'STRONG SELL';
-            } else if (rsi > 60) {
-                return 'SELL';
-            } else {
-                return 'HOLD';
-            }
+        // Generate a signal rating from advanced algorithms
+        function generateRating(signalAnalysis) {
+            if (!signalAnalysis) return 'HOLD';
+            return signalAnalysis.signal || 'HOLD';
         }
 
         // Generate price ranges based on current price and indicators
@@ -781,17 +833,24 @@
                 }
 
                 const snapshot = data.snapshot;
-                const indicators = data.indicators || {};
-                const rsi = indicators.rsi || 50;
-                const ema20 = indicators.ema_20 || snapshot.price;
+                const signalAnalysis = data.signal_analysis || {};
                 const price = snapshot.price;
+                const rating = generateRating(signalAnalysis);
+                const confidence = signalAnalysis.confidence || 0.5;
+                const combinedScore = signalAnalysis.combined_score || 0.5;
                 
-                const rating = generateRating(rsi, ema20, price);
                 const priceRanges = generatePriceRanges(price);
                 
                 // Calculate a mock change percentage
                 const changePercent = ((Math.random() - 0.4) * 5).toFixed(2);
                 const isPositive = changePercent > 0;
+                
+                // Extract advanced indicators
+                const components = signalAnalysis.components || {};
+                const orderFlow = components.order_flow || {};
+                const vwapDist = components.vwap_distance || 0;
+                const microstructure = components.microstructure || {};
+                const volumeProfile = components.volume_profile || {};
                 
                 stocksData.push({
                     symbol,
@@ -800,14 +859,18 @@
                     changePercent: parseFloat(changePercent),
                     isPositive,
                     rating,
-                    rsi,
-                    priceRanges,
+                    confidence,
+                    combinedScore,
+                    orderFlowRatio: (orderFlow.ratio || 1).toFixed(2),
+                    vwapDistance: vwapDist.toFixed(2),
+                    volatility: (microstructure.volatility || 0).toFixed(2),
+                    pocPrice: (volumeProfile.poc || 0).toFixed(2),
                     peRatio: (Math.random() * 50 + 10).toFixed(1),
                     marketCap: (Math.random() * 2 + 0.5).toFixed(1)
                 });
             }
 
-            // Sort by category order, then by recommendation strength within each category
+            // Sort by category order, then by confidence within each category
             const categoryOrder = ['STRONG BUY', 'BUY', 'HOLD', 'SELL', 'STRONG SELL'];
             
             stocksData.sort((a, b) => {
@@ -815,14 +878,8 @@
                 const categoryDiff = categoryOrder.indexOf(a.rating) - categoryOrder.indexOf(b.rating);
                 if (categoryDiff !== 0) return categoryDiff;
                 
-                // Within same category, sort by recommendation confidence (RSI extremeness)
-                if (a.rating === 'STRONG BUY' || a.rating === 'BUY') {
-                    return a.rsi - b.rsi;
-                } else if (a.rating === 'STRONG SELL' || a.rating === 'SELL') {
-                    return b.rsi - a.rsi;
-                } else {
-                    return Math.abs(a.rsi - 50) - Math.abs(b.rsi - 50);
-                }
+                // Within same category, sort by confidence
+                return b.confidence - a.confidence;
             });
 
             // Update or create rows for each stock
@@ -836,7 +893,7 @@
                     stockRowMap.set(stock.symbol, row);
                 }
                 
-                // Update row data only if values changed
+                // Update row data with advanced algorithm metrics
                 row.innerHTML = `
                     <td><span class="stock-symbol">${stock.symbol}</span></td>
                     <td>${stock.company}</td>
@@ -846,10 +903,25 @@
                             <i class="bi bi-arrow-${stock.isPositive ? 'up' : 'down'}-short"></i> ${stock.isPositive ? '+' : ''}${stock.changePercent.toFixed(2)}%
                         </span>
                     </td>
-                    <td>${stock.peRatio}</td>
-                    <td>$${stock.marketCap}T</td>
-                    <td><span class="price-range price-range-buy">${stock.priceRanges.buy}</span></td>
-                    <td><span class="price-range price-range-sell">${stock.priceRanges.sell}</span></td>
+                    <td>
+                        <div class="algorithm-badge">
+                            <small>Order Flow: ${stock.orderFlowRatio}</small>
+                            <small>Volatility: ${stock.volatility}%</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="vwap-badge ${stock.vwapDistance > 0 ? 'above' : 'below'}">
+                            VWAP: ${stock.vwapDistance}%
+                        </span>
+                    </td>
+                    <td>
+                        <span class="poc-badge">POC: $${stock.pocPrice}</span>
+                    </td>
+                    <td>
+                        <span class="confidence-badge" style="background: ${getConfidenceColor(stock.confidence)}">
+                            ${(stock.confidence * 100).toFixed(0)}%
+                        </span>
+                    </td>
                     <td>
                         <span class="rating-badge ${getRatingClass(stock.rating)}">
                             ${stock.rating}
@@ -870,6 +942,14 @@
             });
             
             toRemove.forEach(symbol => stockRowMap.delete(symbol));
+        }
+
+        // Get color based on confidence level
+        function getConfidenceColor(confidence) {
+            if (confidence > 0.8) return 'rgba(16, 185, 129, 0.8)';
+            if (confidence > 0.6) return 'rgba(59, 130, 246, 0.8)';
+            if (confidence > 0.4) return 'rgba(245, 158, 11, 0.8)';
+            return 'rgba(239, 68, 68, 0.8)';
         }
 
         // Update greeting based on time of day

@@ -9,8 +9,7 @@ from app.services.data_provider import (
     update_market_snapshot,
     get_cached_snapshot
 )
-from app.services.indicators import rsi, ema
-from app.services.signals import generate_signal
+from app.services.advanced_indicators import combined_signal
 from app.services.news_generator import generate_news
 
 app = FastAPI(title="Stock Dashboard API")
@@ -61,18 +60,31 @@ def get_news():
 def latest(symbol: str = "AAPL"):
     snapshot, prices = get_cached_snapshot(symbol)
 
-    rsi_value = rsi(prices)
-    ema_20 = ema(prices, 20)
-
-    signal = generate_signal(rsi_value)
+    # Get current price and volumes from cached data
+    current_price = snapshot.get("price", 100)
+    
+    # Generate volumes based on price history
+    volumes = []
+    for price in prices:
+        # Simulate volume with some variation
+        base_volume = 5000000  # 5M share average
+        import random
+        volume = base_volume * random.uniform(0.8, 1.5)
+        volumes.append(volume)
+    
+    # Use advanced institutional algorithms
+    signal_analysis = combined_signal(prices, volumes, current_price)
 
     return {
         "snapshot": snapshot,
-        "indicators": {
-            "rsi": rsi_value,
-            "ema_20": ema_20
-        },
-        "signal": signal
+        "signal_analysis": signal_analysis,
+        "algorithms_used": [
+            "MARKET OPEN SETUP",
+            "ORDER FLOW",
+            "VWAP POSITIONING",
+            "MICROSTRUCTURE",
+            "VOLUME PROFILE"
+        ]
     }
 
 # Serve static files and frontend
