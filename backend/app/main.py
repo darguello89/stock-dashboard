@@ -25,10 +25,24 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def start_background_tasks():
+    # List of stocks to track (matches frontend)
+    STOCK_SYMBOLS = [
+        'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'TSLA', 'META', 'XOM', 'JNJ', 'JPM',
+        'V', 'WMT', 'PG', 'UNH', 'BAC', 'MA', 'DIS', 'VZ', 'CSCO', 'INTC',
+        'AMD', 'CRM', 'ADBE', 'IBM', 'TXN', 'QCOM', 'HON', 'LOW', 'CAT', 'GE',
+        'BA', 'NFLX', 'PYPL', 'SPGI', 'SQ', 'UBER', 'LYFT', 'SNAP', 'PINS', 'ZM',
+        'DOCU', 'TWLO', 'OKTA', 'WORKDAY', 'SLACK', 'MSTR', 'ROKU', 'TTWO', 'RBLX', 'SHOP',
+        'CCI', 'ATVI', 'TMUS', 'DISH', 'CHTR', 'CMCSA', 'ROST', 'BJ', 'AZO', 'RH',
+        'ETSY', 'DASH', 'O', 'STWD', 'MAR', 'HLT', 'OKE', 'CPRT', 'PLD', 'DRE',
+        'PSA', 'EQR', 'AVB', 'ESS', 'ELS', 'EQC', 'ARE', 'SRC', 'RLJ', 'GDRX',
+        'VICI', 'MGM', 'PEN', 'LPX', 'IRM', 'GPRE', 'AMT', 'EQIX', 'CORe', 'LAUR',
+        'NRG', 'NEE', 'DUK', 'SO', 'AEP', 'XEL', 'SLG', 'DEI', 'SBAC', 'FSV'
+    ]
+    
     async def updater():
         while True:
-            update_market_snapshot("AAPL")
-            update_market_snapshot("SPY")
+            for symbol in STOCK_SYMBOLS:
+                update_market_snapshot(symbol)
             await asyncio.sleep(5)
 
     asyncio.create_task(updater())
